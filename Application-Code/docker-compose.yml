@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # 1. MongoDB Database
+  mongodb:
+    image: mongo:latest
+    container_name: devops-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - devops-network
+
+  # 2. Backend API
+  backend:
+    build: ./backend
+    container_name: devops-backend
+    ports:
+      - "3500:3500"
+    environment:
+      # Connects to the 'mongodb' service defined above
+      - MONGO_CONN_STR=mongodb://mongodb:27017/devops_arsenal
+      - PORT=3500
+    depends_on:
+      - mongodb
+    networks:
+      - devops-network
+
+  # 3. Frontend UI
+  frontend:
+    build: ./frontend
+    container_name: devops-frontend
+    ports:
+      - "3000:80" # Maps laptop port 3000 to container port 80
+    environment:
+      # IMPORTANT: This must point to your Public IP or localhost
+      # Because the browser (outside docker) needs to reach the backend
+      - REACT_APP_BACKEND_URL=http://54.176.76.70:3500/api/tools
+    depends_on:
+      - backend
+    networks:
+      - devops-network
+
+# Define a persistent volume for the database
+volumes:
+  mongo-data:
+
+# Define a custom network so containers can talk to each other
+networks:
+  devops-network:
+    driver: bridge
