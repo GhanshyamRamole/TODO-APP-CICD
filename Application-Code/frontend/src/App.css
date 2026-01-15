@@ -1,0 +1,97 @@
+body {
+    margin: 0;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace; /* DevOps font */
+    background-color: #0d1117; /* GitHub Dark background */
+    color: #c9d1d9;
+}
+
+.app-background {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding-top: 50px;
+    background: radial-gradient(circle at center, #161b22 0%, #0d1117 100%);
+}
+
+.header-title {
+    color: #58a6ff; /* Tech Blue */
+    font-weight: bold;
+    text-shadow: 0px 0px 10px rgba(88, 166, 255, 0.4);
+}
+
+.header-subtitle {
+    color: #8b949e;
+    margin-bottom: 20px;
+}
+
+.content-paper {
+    background-color: #161b22 !important; /* Card Dark */
+    padding: 30px;
+    border: 1px solid #30363d;
+    color: #c9d1d9 !important;
+}
+
+.tool-form {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.tool-input .MuiOutlinedInput-root {
+    background-color: #0d1117;
+    color: #c9d1d9;
+}
+
+.tool-input .MuiOutlinedInput-notchedOutline {
+    border-color: #30363d;
+}
+
+.add-btn {
+    background-color: #238636 !important; /* Git Green */
+    color: white !important;
+    font-weight: bold !important;
+}
+
+.tool-item {
+    display: flex;
+    align-items: center;
+    margin-top: 15px;
+    padding: 15px;
+    background-color: #0d1117 !important;
+    border: 1px solid #30363d;
+    transition: all 0.3s ease;
+}
+
+.tool-item:hover {
+    border-color: #58a6ff;
+    transform: translateX(5px);
+}
+
+.mastered-glow {
+    border-color: #238636;
+    box-shadow: 0 0 10px rgba(35, 134, 54, 0.2);
+}
+
+.tool-text {
+    flex-grow: 1;
+    font-size: 1.1rem;
+    margin-left: 10px;
+}
+
+.mastered-text {
+    text-decoration: line-through;
+    color: #484f58;
+}
+
+.checkbox-custom {
+    color: #58a6ff !important;
+}
+
+.delete-btn {
+    color: #da3633 !important; /* Error Red */
+    border: 1px solid #da3633 !important;
+}
+
+.delete-btn:hover {
+    background-color: rgba(218, 54, 51, 0.1) !important;
+}
