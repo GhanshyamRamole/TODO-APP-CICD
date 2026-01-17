@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: devops
+  labels:
+    role: backend
+    env: dev
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 25%
+  selector:
+    matchLabels:
+      role: backend
+  template:
+    metadata:
+      labels:
+        role: backend
+    spec:
+      imagePullSecrets:
+        - name: ecr-registry-secret
+      containers:
+        - name: backend
+          image: ghanshyamramole/devops-backend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3500
+          env:
+            - name: MONGO_CONN_STR
+              value: "mongodb://mongodb-svc:27017/devops_arsenal?directConnection=true"
+            - name: MONGO_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-sec
+                  key: username
+                  optional: true
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-sec
+                  key: password
+                  optional: true
+          
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3500
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 3500
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          startupProbe:
+            httpGet:
+              path: /started
+              port: 3500
+            initialDelaySeconds: 5
+            failureThreshold: 30
+            periodSeconds: 10
+
