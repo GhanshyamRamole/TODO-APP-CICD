@@ -1,0 +1,45 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mainlb
+  namespace: devops
+  annotations:
+    # These annotations create an Application Load Balancer (ALB) on AWS
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+    # Use this if you want to force SSL later:
+    # alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
+spec:
+  ingressClassName: alb
+  rules:
+    # IMPORTANT: If you do not own this domain, REMOVE the "- host:" line 
+    # and indent the "http:" block to the left. 
+    # If you leave it, the ALB will only accept traffic for this specific URL.
+    - host: amanpathakdevops.study 
+      http:
+        paths:
+          # --- BACKEND ROUTES ---
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: backend-service 
+                port:
+                  number: 3500
+          - path: /healthz
+            pathType: Exact
+            backend:
+              service:
+                name: backend-service
+                port:
+                  number: 3500
+          
+          # --- FRONTEND ROUTE ---
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-service
+                port:
+                  number: 80
