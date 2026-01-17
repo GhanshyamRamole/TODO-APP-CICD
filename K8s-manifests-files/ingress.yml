@@ -13,11 +13,7 @@ metadata:
 spec:
   ingressClassName: alb
   rules:
-    # IMPORTANT: If you do not own this domain, REMOVE the "- host:" line 
-    # and indent the "http:" block to the left. 
-    # If you leave it, the ALB will only accept traffic for this specific URL.
-    - host: amanpathakdevops.study 
-      http:
+    -  http:
         paths:
           # --- BACKEND ROUTES ---
           - path: /api
