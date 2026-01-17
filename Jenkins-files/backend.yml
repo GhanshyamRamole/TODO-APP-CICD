@@ -1,0 +1,141 @@
+pipeline {
+    agent any
+
+    tools {
+        jdk 'jdk17'
+        nodejs 'node18'
+    }
+
+    environment {
+      
+        SCANNER_HOME = tool 'sonar-scanner'
+        AWS_ACCOUNT_ID = credentials('aws-account-id')
+        AWS_DEFAULT_REGION = 'us-east-1'
+       
+        AWS_ECR_REPO_NAME = 'devops-backend' 
+        REPOSITORY_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/"
+        
+        GIT_USER_NAME = "GhanshyamRamole"
+        GIT_USER_EMAIL = "ghanshyamramole999@gmail.com"
+        GIT_REPO_NAME = "aws-terraform-mern-e2e"
+    }
+
+    stages {
+        stage('Cleaning Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+
+        stage('Checkout Code') {
+            steps {
+                // Cloning YOUR repository
+                git branch: 'main', 
+                    credentialsId: 'github-token', 
+                    url: 'https://github.com/GhanshyamRamole/aws-terraform-mern-e2e.git'
+            }
+        }
+
+        stage('Sonarqube Analysis') {
+            steps {
+                dir('Application-Code/backend') {
+                   
+                    withSonarQubeEnv('sonar-server') {
+                        sh '''
+                        $SCANNER_HOME/bin/sonar-scanner \
+                        -Dsonar.projectName=devops-backend \
+                        -Dsonar.projectKey=devops-backend \
+                        -Dsonar.sources=. \
+                        -Dsonar.exclusions=**/node_modules/**
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true, credentialsId: 'sonar-token'
+                }
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                dir('Application-Code/backend') {
+                    sh 'npm install'
+                }
+            }
+        }
+
+        stage('OWASP Dependency Scan') {
+            steps {
+                dir('Application-Code/backend') {
+                    // Ensure 'DP-Check' is configured in Global Tools
+                    dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
+                    dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+                }
+            }
+        }
+
+        stage('Trivy FS Scan') {
+            steps {
+                dir('Application-Code/backend') {
+                    // Scans the file system for vulnerabilities
+                    sh 'trivy fs . > trivyfs.txt'
+                }
+            }
+        }
+
+        stage("Docker Build & Push") {
+            steps {
+                script {
+                    dir('Application-Code/backend') {
+                        docker.withRegistry("https://${REPOSITORY_URI}", "ecr:${AWS_DEFAULT_REGION}:aws-credentials") {
+                            //  Build
+                            sh "docker build -t ${AWS_ECR_REPO_NAME}:${BUILD_NUMBER} ."
+                            
+                            //  Tag "Latest"
+                            sh "docker tag ${AWS_ECR_REPO_NAME}:${BUILD_NUMBER} ${REPOSITORY_URI}${AWS_ECR_REPO_NAME}:latest"
+                            sh "docker tag ${AWS_ECR_REPO_NAME}:${BUILD_NUMBER} ${REPOSITORY_URI}${AWS_ECR_REPO_NAME}:${BUILD_NUMBER}"
+                            
+                            // Push
+                            sh "docker push ${REPOSITORY_URI}${AWS_ECR_REPO_NAME}:latest"
+                            sh "docker push ${REPOSITORY_URI}${AWS_ECR_REPO_NAME}:${BUILD_NUMBER}"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage("Trivy Image Scan") {
+            steps {
+                // Scans the image we just pushed
+                sh "trivy image ${REPOSITORY_URI}${AWS_ECR_REPO_NAME}:${BUILD_NUMBER} > trivyimage.txt" 
+            }
+        }
+
+        stage('Update K8s Manifest') {
+            steps {
+               
+                dir('kubernetes') { 
+                    withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                        sh '''
+                            git config user.email "${GIT_USER_EMAIL}"
+                            git config user.name "${GIT_USER_NAME}"
+                            
+                            sed -i "s|image: .*|image: ${REPOSITORY_URI}${AWS_ECR_REPO_NAME}:${BUILD_NUMBER}|" backend-deployment.yaml
+                            
+                            git add backend-deployment.yaml
+                            git commit -m "CI: Update backend image to version ${BUILD_NUMBER}"
+                            
+                            # Push changes back to GitHub
+                            git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
+                        '''
+                    }
+                }
+            }
+        }
+    }
+}
