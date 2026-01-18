@@ -26,10 +26,10 @@ spec:
       containers:
       - name: frontend
         # Matches your Jenkins Pipeline image name
-        image: ghanshyamramole/devops-frontend:latest
+        image: ghanshyamramole/frontend-stack1:latest
         imagePullPolicy: Always
         env:
           - name: REACT_APP_BACKEND_URL
-            value: "http://backend-service:3500/api/tools"
+            value: "/api/tools"
         ports:
         - containerPort: 80
