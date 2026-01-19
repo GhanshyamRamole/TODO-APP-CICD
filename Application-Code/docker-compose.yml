@@ -14,7 +14,7 @@ services:
 
   # 2. Backend API
   backend:
-    build: ./backend
+    image: ghanshyamramole/backend-stack1:latest
     container_name: devops-backend
     ports:
       - "3500:3500"
@@ -29,14 +29,14 @@ services:
 
   # 3. Frontend UI
   frontend:
-    build: ./frontend
+    image: ghanshyamramole/frontend-stack
     container_name: devops-frontend
     ports:
       - "3000:80" # Maps laptop port 3000 to container port 80
     environment:
       # IMPORTANT: This must point to your Public IP or localhost
       # Because the browser (outside docker) needs to reach the backend
-      - REACT_APP_BACKEND_URL=http://54.176.76.70:3500/api/tools
+      - REACT_APP_BACKEND_URL=http://3.101.62.10:3500/api/tools
     depends_on:
       - backend
     networks:
