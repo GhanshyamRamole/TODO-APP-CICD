@@ -81,7 +81,8 @@ The workflow follows industry best practices:
 
 - Commit changes (git commit -m 'Add AmazingFeature').
 
--Push to branch (git push origin feature/AmazingFeature).
+- Push to branch (git push origin feature/AmazingFeature).
 
 - Open a Pull Request.
 ---
+
