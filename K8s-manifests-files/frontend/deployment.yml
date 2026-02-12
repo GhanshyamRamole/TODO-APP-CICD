@@ -26,7 +26,7 @@ spec:
       containers:
       - name: frontend
         # Matches your Jenkins Pipeline image name
-        image: 337909737467.dkr.ecr.us-east-1.amazonaws.com/devops-frontend:3
+        image: ghanshyamramole/frontend-stack1:latest
         imagePullPolicy: Always
         env:
           - name: REACT_APP_BACKEND_URL
