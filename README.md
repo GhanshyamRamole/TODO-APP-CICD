@@ -147,7 +147,7 @@ terraform apply --auto-approve
 
 ### Phase 2: GitOps with ArgoCD
 
-ArgoCD automates the delivery of application manifests. For detailed credential retrieval and UI access, see the **[GitOps Setup Guide](https://www.google.com/search?q=./GitOps.md)**.
+ArgoCD automates the delivery of application manifests. For detailed credential retrieval and UI access, see the **[GitOps Setup Guide](https://github.com/GhanshyamRamole/aws-terraform-mern-e2e/blob/main/GitOps.md)**.
 
 -   **Fast Deploy:**
 
@@ -163,9 +163,9 @@ kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/st
 
 The observability stack provides real-time insights into your EKS cluster.
 
--   **Prometheus:** See the **[Prometheus Installation Guide](https://www.google.com/search?q=./Observability/helm%2520/prometheus.md)** for Helm deployment commands.
+-   **Prometheus:** See the **[Prometheus Installation Guide](https://github.com/GhanshyamRamole/aws-terraform-mern-e2e/blob/main/Observability/helm%20/prometheus.md)** for Helm deployment commands.
 
--   **Grafana:** See the **[Grafana Installation Guide](https://www.google.com/search?q=./Observability/helm%2520/grafana.md)** for dashboard setup and admin password retrieval.
+-   **Grafana:** See the **[Grafana Installation Guide](https://github.com/GhanshyamRamole/aws-terraform-mern-e2e/blob/main/Observability/helm%20/grafana.md)** for dashboard setup and admin password retrieval.
 
 * * * * *
 
@@ -179,4 +179,5 @@ The observability stack provides real-time insights into your EKS cluster.
 3.  Commit changes (`git commit -m 'Add AmazingFeature'`).
 
 4.  Push to the branch and open a Pull Request.
+
 
